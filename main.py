@@ -45,7 +45,7 @@ res_dic = {0:'geology',1:'deep',2:'thermocline',3:'ml'}
 ###################
 
 
-# make a datframe to hold the reservoir change with time
+# make a dataframe to hold the reservoir change with time
 R = np.DataFrame(index=timesteps, columns=[0,1,2,3])
 # make a df to hold the temperature anomaly with time
 T = np.DataFrame(index = timesteps, columns=['T_sfc','T_deep'])
