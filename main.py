@@ -7,6 +7,8 @@ March 2021
 Final project for Climate Dynamics
 presented to Kyle Armour and Gerard Roe
 
+see modules.py to find the models and the plot functions
+
 """
 
 ## Import packages ##
@@ -27,6 +29,8 @@ dir_out = '/Users/jadesauve/Coding/figures/'
 
 # reservoir labels
 res_dic = {0:'geology',1:'deep',2:'thermocline',3:'ml'}
+
+# use the attributes dictionaries below to select which parameters to pass to the models
 
 attr_FAIR = {
 # emissions parameters
@@ -76,7 +80,7 @@ df4 = KYLE(attr_KYLE,E_time='on')
 
 
 
-# plot to compare
+# plot 
 title = 'Radiative Forcing and Atmospheric CO2 Concentration'
 x = [df.index, df.index]
 y1 = [df['C'], df2['C']]

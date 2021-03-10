@@ -134,7 +134,7 @@ def FAIR(attr,set_alpha='on'):
 
 
 
-## Plot making
+## Plot 
 
 
 def plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None):
