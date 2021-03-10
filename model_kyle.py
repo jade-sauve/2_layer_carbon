@@ -62,7 +62,7 @@ plt.show()
 # 2: What about for time varying CO2 emissions?
 
 E_CO2_time = 2 # ppm/year (constant)
-CO2_timevarying = CO2_PI + alpha*E_CO2_time* (beta*time + (1 - beta)*tau*(1 - np.exp(-time/tau)))
+CO2_timevarying = CO2_PI + alpha*E_CO2_time* (beta*time      + (1 - beta)*tau*(1 - np.exp(-time     /tau)))
 
 #Plot CO2 versus time
 title = ''
