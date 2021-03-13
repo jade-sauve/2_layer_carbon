@@ -35,6 +35,10 @@ res_dic = {0:'geology',1:'deep',2:'thermocline',3:'ml'}
 
 ppmtoGtC = 2.12
 
+F2x = 3.74 #forcing due to doubling CO2 (W/m2)
+C0 = 280, # preindustrial CO2 concentration (ppm)
+Fext = 0, # non-CO2 forcing (W/m2)
+
 # use the attributes dictionaries below to select which parameters to pass to the models
 
 attr_FAIR = {
@@ -87,25 +91,29 @@ attr_2lm = {
 
 # open excel files and make df containing RCP emissions scenarios in ppm
 for sce in file_in.keys():
+	# open the file
 	df = pd.read_excel (dir_in+file_in[sce])
+	# select which row we want
 	dfe = df[df['Variable'] == 'CO2 emissions - Total']
 	dfw = dfe[df['Region'] == 'World']
 	dfE = dfw[[2000,2005,2010,2020,2030,2040,2050,2060,2070,2080,2090,2100]]   # PgC/yr or GtC/yr
+	# convert to ppm
 	dfppm = dfE/ppmtoGtC
 	dfppm = dfppm.transpose()
 	dfppm = dfppm.rename(columns={16:sce})
-
+	# concatenate all scenarios in one df
 	try:
 	    dfrcp = pd.concat([dfrcp, dfppm],axis=1)
 	except NameError:
 	    dfrcp = dfppm
 
-# Make an emission pattern (one per year) - will require dt=1 and C0 for 2000
+# Make an emission pattern (one value per year) - will require dt=1 and C0 for 2000
 dfEsce = pd.DataFrame(index=range(2000,2101),columns=dfrcp.columns)
 for sce in file_in.keys():
 	i=0
 	for yr in dfrcp.index:
 		try:
+			# find the year where the emissions change
 			yrend = dfrcp.index[i+1]
 			dfEsce.loc[yr:yrend,sce] = dfrcp.loc[yr,sce]
 		except IndexError:
@@ -113,18 +121,20 @@ for sce in file_in.keys():
 		i=i+1
 
 
-# section 3
+
+## section 3
 # run full FAIR model
 df, R = FAIR(attr_FAIR)
 
 # run FAIR with alpha set to 1
 df2, R2 = FAIR(attr_FAIR, set_alpha='off')
 
-title = 'Temperature Anomaly'
-x = [df.index, df.index]
+# plot
+title = 'Temperature Anomaly in FAIR Model'
+x = [df.index.values+1850, df.index.values+1850]
 y1 = [df['T_sfc'], df['T_deep']]
 y2 = [df2['T_sfc'], df2['T_deep']]
-xlabel = 'Time (yr)'
+xlabel = 'Year'
 ylabel = 'Temperature (K)'
 label1 = ['FAIR','alpha=1']
 label2 = ['T_sfc','T_deep']
@@ -135,9 +145,9 @@ plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
 
 
-# section 1
-# run carbon model
-# run simple carbon model with pulse
+## section 1
+# run simple carbon model
+# run with pulse
 attr_KYLE['E'] = 200 #ppm
 df3 = KYLE(attr_KYLE)
 
@@ -150,27 +160,22 @@ df4 = KYLE(attr_KYLE,E_time='on')
 dfpulse = twolmodel(attr_2lm)
 
 # run time-varying in 2l model
-attr_2lm['R'] = 0.02 # 4 W/m2/200 yr
+attr_2lm['R'] = 0.02 # 4 W/m2 / 200 yr
 dfnopulse = twolmodel(attr_2lm, pulse='off')
 
-# run simple model pulse in 2l model
+# run carbon model pulse in 2l model
 # find forcing from [CO2]
-F2x = 3.74 #forcing due to doubling CO2 (W/m2)
-C0 = 280, # preindustrial CO2 concentration (ppm)
-Fext = 0, # non-CO2 forcing (W/m2)
 F = F2x/np.log(2) * np.log(df3/C0) + Fext
+# run
 attr_2lm['R'] = F.values # 4 W/m2/300 yr
 dftime = twolmodel(attr_2lm,pulse='time')
 
-# run simple model time in 2l model
-F2x = 3.74 #forcing due to doubling CO2 (W/m2)
-C0 = 280, # preindustrial CO2 concentration (ppm)
-Fext = 0, # non-CO2 forcing (W/m2)
+# run carbon model constant emissions in 2l model
 F = F2x/np.log(2) * np.log(df4/C0) + Fext
 attr_2lm['R'] = F.values # 4 W/m2/300 yr
 dftime2 = twolmodel(attr_2lm,pulse='time')
 
-
+# plot
 title = 'Temperature Anomaly in 2-layer Ocean Model with Carbon Model Atmopsheric [CO2]'
 x = [dftime.index.values+1850,dftime2.index.values+1850]
 y1 = [dftime['T_sfc'],dftime2['T_sfc']]
@@ -201,10 +206,12 @@ plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
 # section 2
 # run Fair on RCP scenarios
-attr_FAIR['E'] =  dfEsce['26'].values # ppm/yr
-attr_FAIR['C0'] = 369.55 # ppm
+# requires different attributes due to the nature of the emission scenario
+attr_FAIR['C0'] = 369.55 # ppm for the year 2000
 attr_FAIR['dt'] = 1
 attr_FAIR['endtime'] = 100
+
+attr_FAIR['E'] =  dfEsce['26'].values # ppm/yr
 df26, R26 = FAIR(attr_FAIR,E_time='on')
 
 attr_FAIR['E'] =  dfEsce['45'].values # ppm/yr
@@ -216,6 +223,7 @@ df60, R60 = FAIR(attr_FAIR,E_time='on')
 attr_FAIR['E'] =  dfEsce['85'].values # ppm/yr
 df85, R85 = FAIR(attr_FAIR,E_time='on')
 
+# plot
 title = 'Temperature Anomaly for RCP Scenarios in FAIR'
 x = [df26.index.values+2000, df45.index.values+2000,df60.index.values+2000,df85.index.values+2000]
 y1 = [df26['T_sfc'],df45['T_sfc'],df60['T_sfc'],df85['T_sfc']]
@@ -231,10 +239,8 @@ plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
 
 
-
-# extra plots
+# plot the emissions scenarios for the method
 title = 'Emissions Scenarios' # also mention the forcing scenarios: simple pulse and constant E
-
 fig, ax = plt.subplots()
 ax.plot(df3.index+1850, df3, linestyle='-', ms=4, color='blue',label='Pulse ')
 ax.plot(df4.index+1850, df4, linestyle='-.', ms=4, color='blue',label='Constant Emissions')
@@ -246,7 +252,6 @@ ax2.plot(dfEsce.index, dfEsce['45'], linestyle='-.', ms=4, color='red',label='RC
 ax2.plot(dfEsce.index, dfEsce['60'], linestyle='dotted', ms=4, color='red',label='RCP6.0')
 ax2.plot(dfEsce.index, dfEsce['85'], linestyle='dashed', ms=4, color='red',label='RCP8.5')
 ax2.set_ylabel('RCP Emissions (ppm/yr)', color='red')
-
 ax.set_xlabel('Year')
 ax.grid()
 plt.title(title)
@@ -261,6 +266,7 @@ plt.show()
 
 
 
+# extra plots
 title = 'Radiative Forcing and Atmospheric CO2 Concentration'
 x = [df.index, df.index]
 y1 = [df['C'], df2['C']]
