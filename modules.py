@@ -46,9 +46,46 @@ def KYLE(attr,E_time='off'):
     return df
 
 
+def twolmodel(attr, pulse='on'):
+    """
+    This is the 2-layer ocean model
+    requires a forcing in W/m2
+
+    """
+    #### Parameters ####
+    yeartosec = 30.25*24*60*60*12
+    rho = 1025 # density of sea water kg/m3
+    cw = 3985 # specific heat of sea water J/KgK
+
+    ###################
+
+    # define time steps of the model
+    timesteps = np.arange(0,attr['endtime']+attr['dt'],attr['dt']) 
+
+    df = pd.DataFrame(index=timesteps,columns=['T_sfc','T_deep'],data=np.zeros((len(timesteps), 2)))
+
+    for t in range(len(timesteps)-1):
+        if pulse is 'on':
+            if t == 0:
+                df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + attr['R'] + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
+                df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
+            else:
+                df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + 0 + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
+                df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
+        elif pulse is 'off':
+            df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + attr['R'] + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
+            df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
+        
+        elif pulse is 'time':
+            df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + attr['R'][t] + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
+            df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
 
 
-def FAIR(attr,set_alpha='on'):
+    return df
+
+
+
+def FAIR(attr,set_alpha='on',E_time='off'):
     """
     This is the full FAIR model
     requires a constant emissions per year
@@ -97,7 +134,10 @@ def FAIR(attr,set_alpha='on'):
         if set_alpha is 'on':
             # step 1: find IRF100 from previous T,C
             # accumulated carbon 
-            Cacc = (attr['E']*timesteps[t] - (df.iloc[t]['C'] - attr['C0']))*ppmtoGtC # GtC
+            if E_time is 'off':
+                Cacc = (attr['E']*timesteps[t] - (df.iloc[t]['C'] - attr['C0']))*ppmtoGtC # GtC
+            elif E_time is 'on':
+                Cacc = (np.sum(attr['E'][:t]) - (df.iloc[t]['C'] - attr['C0']))*ppmtoGtC # GtC
             
             LHS = r0 + rc*Cacc + rt*df.iloc[t]['T_sfc'] # yr
 
@@ -116,7 +156,10 @@ def FAIR(attr,set_alpha='on'):
 
         # step 3: update carbon pools concentration (ppm)
         for i in range(0,4):
-            R.iloc[t+1,i] = R.iloc[t,i] + attr['dt']*(a[i]*attr['E'] - R.iloc[t,i]/(alpha*tau[i]))
+            if E_time is 'off':
+                R.iloc[t+1,i] = R.iloc[t,i] + attr['dt']*(a[i]*attr['E'] - R.iloc[t,i]/(alpha*tau[i]))
+            elif E_time is 'on':
+                R.iloc[t+1,i] = R.iloc[t,i] + attr['dt']*(a[i]*attr['E'][t] - R.iloc[t,i]/(alpha*tau[i]))
 
         # step 4: update atmopsheric [CO2] (ppm)
         df.iloc[t+1,df.columns.get_indexer(['C'])] = attr['C0'] + np.sum(R.iloc[t+1])
