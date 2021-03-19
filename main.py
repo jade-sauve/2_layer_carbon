@@ -124,10 +124,13 @@ for sce in file_in.keys():
 
 ## section 3
 # run full FAIR model
+attr_FAIR['endtime']=1000
 df, R = FAIR(attr_FAIR)
 
 # run FAIR with alpha set to 1
 df2, R2 = FAIR(attr_FAIR, set_alpha='off')
+
+
 
 # plot
 title = 'Temperature Anomaly in FAIR Model'
@@ -157,6 +160,7 @@ df4 = KYLE(attr_KYLE,E_time='on')
 
 # run T model
 # run a pulse in 2l-ocean model
+attr_2lm['R'] = 4 # W/m2 
 dfpulse = twolmodel(attr_2lm)
 
 # run time-varying in 2l model
@@ -176,30 +180,180 @@ attr_2lm['R'] = F.values # 4 W/m2/300 yr
 dftime2 = twolmodel(attr_2lm,pulse='time')
 
 # plot
-title = 'Temperature Anomaly in 2-layer Ocean Model with Carbon Model Atmopsheric [CO2]'
-x = [dftime.index.values+1850,dftime2.index.values+1850]
-y1 = [dftime['T_sfc'],dftime2['T_sfc']]
-y2 = [dftime['T_deep'],dftime2['T_deep']]
+# title = 'Temperature Anomaly in 2-layer Ocean Model with Carbon Model Atmopsheric [CO2]'
+# x = [dftime.index.values+1850,dftime2.index.values+1850]
+# y1 = [dftime['T_sfc'],dftime2['T_sfc']]
+# y2 = [dftime['T_deep'],dftime2['T_deep']]
+# xlabel = 'Year'
+# ylabel = 'Temperature Anomaly (˚)'
+# label1 = ['T_sfc','T_deep']
+# label2 = ['Pulse','Constant']
+# colors = ['green','orange']
+# plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+
+# title = 'Temperature Anomaly for Simple Scenarios in 2-layer Ocean Model'
+# x = [dfpulse.index.values+1850, dfnopulse.index.values+1850]
+# y1 = [dfpulse['T_sfc'],dfnopulse['T_sfc']]
+# y2 = [dfpulse['T_deep'],dfnopulse['T_deep']]
+# xlabel = 'Year'
+# ylabel = 'Temperature Anomaly (˚)'
+# label1 = ['T_sfc','T_deep']
+# label2 = ['Pulse','Constant']
+# colors = ['blue','red']
+# plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+# title = 'Surface Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [dfpulse['T_sfc'],dfnopulse['T_sfc']]
+# y2 = [dftime['T_sfc'],dftime2['T_sfc']]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+title = 'Surface Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [dfpulse['T_sfc'],dftime['T_sfc']]
+y2 = [dfnopulse['T_sfc'],dftime2['T_sfc']]
 xlabel = 'Year'
 ylabel = 'Temperature Anomaly (˚)'
-label1 = ['T_sfc','T_deep']
-label2 = ['Pulse','Constant Emissions']
-colors = ['green','orange']
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
+colors = ['blue','red']
 plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
-
-title = 'Temperature Anomaly for Simple Scenarios in 2-layer Ocean Model'
-x = [dfpulse.index.values+1850, dfnopulse.index.values+1850]
-y1 = [dfpulse['T_sfc'],dfnopulse['T_sfc']]
-y2 = [dfpulse['T_deep'],dfnopulse['T_deep']]
+title = 'Surface Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [dfpulse['T_sfc'],301*[np.NaN]]
+y2 = [dfnopulse['T_sfc'],301*[np.NaN]]
 xlabel = 'Year'
 ylabel = 'Temperature Anomaly (˚)'
-label1 = ['T_sfc','T_deep']
-label2 = ['Pulse','Constant Emissions']
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
 colors = ['blue','red']
 plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
 
+title = 'Surface Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [301*[np.NaN],dftime['T_sfc']]
+y2 = [301*[np.NaN],dftime2['T_sfc']]
+xlabel = 'Year'
+ylabel = 'Temperature Anomaly (˚)'
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
+colors = ['blue','red']
+plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+title = 'Deep Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [dfpulse['T_deep'],dftime['T_deep']]
+y2 = [dfnopulse['T_deep'],dftime2['T_deep']]
+xlabel = 'Year'
+ylabel = 'Temperature Anomaly (˚)'
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
+colors = ['blue','red']
+plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+title = 'Deep Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [dfpulse['T_deep'],301*[np.NaN]]
+y2 = [dfnopulse['T_deep'],301*[np.NaN]]
+xlabel = 'Year'
+ylabel = 'Temperature Anomaly (˚)'
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
+colors = ['blue','red']
+plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+title = 'Deep Temperature Anomaly'
+x = [dftime.index.values+1850, dfpulse.index.values+1850]
+y1 = [301*[np.NaN],dftime['T_deep']]
+y2 = [301*[np.NaN],dftime2['T_deep']]
+xlabel = 'Year'
+ylabel = 'Temperature Anomaly (˚)'
+label1 = ['Pulse','Constant']
+label2 = ['Forcing-Driven','Emission-Driven']
+colors = ['blue','red']
+plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+
+# title = 'Surface Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [dfpulse['T_sfc'],dfnopulse['T_sfc']]
+# y2 = [301*[np.NaN],301*[np.NaN]]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+# title = 'Surface Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [301*[np.NaN],301*[np.NaN]]
+# y2 = [dftime['T_sfc'],dftime2['T_sfc']]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+
+
+# title = 'Deep Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [dfpulse['T_deep'],dfnopulse['T_deep']]
+# y2 = [301*[np.NaN],301*[np.NaN]]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant Emissions']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+# title = 'Deep Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [301*[np.NaN],301*[np.NaN]]
+# y2 = [dftime['T_deep'],dftime2['T_deep']]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant Emissions']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
+
+
+
+
+
+# title = 'Deep Temperature Anomaly'
+# x = [dftime.index.values+1850, dfpulse.index.values+1850]
+# y1 = [dfpulse['T_deep'],dfnopulse['T_deep']]
+# y2 = [dftime['T_deep'],dftime2['T_deep']]
+# ls = ['-','-.']
+# xlabel = 'Year'
+# ylabel = ['Temperature (˚C)','Temperature (˚C)',]
+# label1 = ['Pulse','Constant Emissions']
+# label2 = ['Forcing-Driven','Emission-Driven']
+# colors = ['blue','red']
+# # file_out = dir_out+'F_C_compare'
+# plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 
 
 
@@ -242,28 +396,48 @@ plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None)
 # plot the emissions scenarios for the method
 title = 'Emissions Scenarios' # also mention the forcing scenarios: simple pulse and constant E
 fig, ax = plt.subplots()
-ax.plot(df3.index+1850, df3, linestyle='-', ms=4, color='blue',label='Pulse ')
-ax.plot(df4.index+1850, df4, linestyle='-.', ms=4, color='blue',label='Constant Emissions')
-ax.set_ylabel('Simple Carbon Model Atmopsheric Concentration (ppm)', color='blue')
+ax.plot(df3.index+1850, df3, linestyle='-', ms=4, color='k',label='Pulse ')
+ax.plot(df4.index+1850, df4, linestyle='-.', ms=4, color='k',label='Constant Emissions')
+ax.set_ylabel('Atmopsheric [CO2] (ppm)', color='k')
 plt.legend(loc='upper left')
-ax2 = ax.twinx()
-ax2.plot(dfEsce.index, dfEsce['26'], linestyle='-', ms=4, color='red',label='RCP2.6')
-ax2.plot(dfEsce.index, dfEsce['45'], linestyle='-.', ms=4, color='red',label='RCP4.5')
-ax2.plot(dfEsce.index, dfEsce['60'], linestyle='dotted', ms=4, color='red',label='RCP6.0')
-ax2.plot(dfEsce.index, dfEsce['85'], linestyle='dashed', ms=4, color='red',label='RCP8.5')
-ax2.set_ylabel('RCP Emissions (ppm/yr)', color='red')
+# ax2 = ax.twinx()
+# ax2.plot(dfEsce.index, dfEsce['26'], linestyle='-', ms=4, color='red',label='RCP2.6')
+# ax2.plot(dfEsce.index, dfEsce['45'], linestyle='-.', ms=4, color='red',label='RCP4.5')
+# ax2.plot(dfEsce.index, dfEsce['60'], linestyle='dotted', ms=4, color='red',label='RCP6.0')
+# ax2.plot(dfEsce.index, dfEsce['85'], linestyle='dashed', ms=4, color='red',label='RCP8.5')
+# ax2.set_ylabel('RCP Emissions (ppm/yr)', color='red')
 ax.set_xlabel('Year')
 ax.grid()
+plt.xlim(1850,2150)
 plt.title(title)
-plt.legend(loc='upper right')
+plt.legend(loc='upper left')
 plt.show()
 
 
+Fpulse = F2x/np.log(2) * np.log(df3/C0) + Fext
+Fconst = F2x/np.log(2) * np.log(df4/C0) + Fext
 
 
-
-
-
+title = 'Radiative Forcing Scenarios' # also mention the forcing scenarios: simple pulse and constant E
+fig, ax = plt.subplots()
+ax.plot(df3.index+1850, [200]+300*[0], linestyle='-', ms=4, color='Gray',label='Pulse ')
+ax.plot(df4.index+1850, 0.02*np.arange(301), linestyle='-.', ms=4, color='Gray',label='Constant Emissions')
+ax.plot(df3.index+1850, Fpulse, linestyle='-', ms=4, color='k',label='Pulse ')
+ax.plot(df4.index+1850, Fconst, linestyle='-.', ms=4, color='k',label='Constant Emissions')
+ax.set_ylabel('Radiative Forcing (W/m2)', color='k')
+plt.legend(loc='upper left')
+# ax2 = ax.twinx()
+# ax2.plot(dfEsce.index, dfEsce['26'], linestyle='-', ms=4, color='red',label='RCP2.6')
+# ax2.plot(dfEsce.index, dfEsce['45'], linestyle='-.', ms=4, color='red',label='RCP4.5')
+# ax2.plot(dfEsce.index, dfEsce['60'], linestyle='dotted', ms=4, color='red',label='RCP6.0')
+# ax2.plot(dfEsce.index, dfEsce['85'], linestyle='dashed', ms=4, color='red',label='RCP8.5')
+# ax2.set_ylabel('RCP Emissions (ppm/yr)', color='red')
+ax.set_xlabel('Year')
+ax.grid()
+plt.xlim(1850,2150)
+plt.title(title)
+plt.legend(loc='upper left')
+plt.show()
 
 
 # extra plots

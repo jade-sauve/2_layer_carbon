@@ -50,6 +50,9 @@ def twolmodel(attr, pulse='on'):
     """
     This is the 2-layer ocean model
     requires a forcing in W/m2
+    pulse = on - radiative pulse W/m2
+    pulse = off - time varyin radaitive forcing W/m2/yr
+    pulse = time - use output from simple carbon model
 
     """
     #### Parameters ####
@@ -73,7 +76,7 @@ def twolmodel(attr, pulse='on'):
                 df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + 0 + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
                 df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
         elif pulse is 'off':
-            df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + attr['R'] + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
+            df.iloc[t+1,df.columns.get_indexer(['T_sfc'])] = df.iloc[t]['T_sfc'] + (attr['dt']*yeartosec/(rho*cw*attr['hsfc'])) * (attr['lb']*df.iloc[t]['T_sfc'] + attr['R']*timesteps[t] + attr['beta']*attr['e']*(df.iloc[t]['T_deep'] - df.iloc[t]['T_sfc'])) 
             df.iloc[t+1,df.columns.get_indexer(['T_deep'])] = df.iloc[t]['T_deep'] + (attr['dt']*yeartosec/(rho*cw*attr['hdeep'])) * (attr['beta'] * (df.iloc[t]['T_sfc'] - df.iloc[t]['T_deep'])) 
         
         elif pulse is 'time':
@@ -190,16 +193,16 @@ def plot_2ax(x,y1,y2,ls,xlabel,ylabel,label1,label2,title,colors,file_out=None):
     for i in range(len(y1)):
         ax.plot(x[i], y1[i], linestyle=ls[i], ms=4, color=colors[0],label=label1[i]+', '+label2[0])
     ax.set_ylabel(ylabel[0], color=colors[0])
-
+    plt.legend(loc='upper left')
     ax2 = ax.twinx()
     for i in range(len(y2)):
         ax2.plot(x[i], y2[i], linestyle=ls[i], ms=4, color=colors[1],label=label1[i]+', '+label2[1])
     ax2.set_ylabel(ylabel[1], color=colors[1])
-
+    plt.legend(loc='upper right')
     ax.set_xlabel(xlabel)
     ax.grid()
     plt.title(title)
-    plt.legend()
+    # plt.legend()
     
     if file_out is None:
         plt.show()
@@ -238,6 +241,27 @@ def plot_1ax(x,y1,y2,xlabel,ylabel,label1,label2,title,colors,file_out=None):
 
 
 
+def plot_1var(x,y,xlabel,ylabel,label,title,colors,file_out=None):
+    """
+    Plot 2 or more variables on the same axis
+    To save the figure, set file_out = '/directory/for/figures/file_name'
+
+    """
+    plt.figure()
+    for i in range(len(y)):
+        plt.plot(x[i], y[i], ms=4, color=colors[i],label=label[i])
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    plt.grid()
+    plt.title(title)
+    plt.legend()
+    plt.xlim(x[0][0],x[0][-1])
+    
+    if file_out is None:
+        plt.show()
+    else:
+        plt.savefig(file_out+'.eps',format='eps',dpi=200)
+        plt.close()
 
 
 

@@ -1,0 +1,90 @@
+"""
+Jade Sauve
+Mary Margaret Stoll
+
+March 2021
+
+Final project for Climate Dynamics
+presented to Kyle Armour and Gerard Roe
+
+see modules.py to find the models and the plot functions
+
+"""
+
+## Import packages ##
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import sys
+pht = os.path.abspath('/Users/jadesauve/Documents/Python/scripts/2_layer_carbon/')
+if pht not in sys.path:
+    sys.path.append(pht)
+from modules import *
+
+
+#### Parameters ####
+
+dir_in = '/Users/jadesauve/Coding/data/RCP/'
+file_in = {'26':'R26_bulk.xls','45':'R45_bulk.xls','60':'R60_bulk.xls','85':'R85_bulk.xls'}
+
+dir_out = '/Users/jadesauve/Coding/figures/'
+
+# reservoir labels
+res_dic = {0:'geology',1:'deep',2:'thermocline',3:'ml'}
+
+ppmtoGtC = 2.12
+
+F2x = 3.74 #forcing due to doubling CO2 (W/m2)
+C0 = 280, # preindustrial CO2 concentration (ppm)
+Fext = 0, # non-CO2 forcing (W/m2)
+
+# use the attributes dictionaries below to select which parameters to pass to the models
+
+attr_FAIR = {
+# emissions parameters
+	'E':2, # annual CO2 emissions (ppm/yr)
+	'Fext':0, # non-CO2 forcing (W/m2)
+# time parameters
+	'dt':0.1, # timestep size
+	'endtime':300, # last year in the timesteps (yr)
+# ocean model parameters
+	'beta':0.7, # ocean heat uptake efficiency parameter (W/m2K), strength of coupling between layers
+	'lb':-1.2, # radiative feedback parameter (W/m2K)
+	'e':1.3, # ocean heat uptake efficacy (unitless)
+	'hsfc':100, # upper ocean depth, meters
+	'hdeep':1000, # deep ocean depth, meters 
+# initial conditions
+	'C0':280, # preindustrial CO2 concentration (ppm)
+	'alpha0':0.11 # preindustrial alpha from Millard et al
+}
+
+attr_KYLE = {
+# emissions parameters
+	'E':200, # pulse CO2 emissions (ppm) or time varying (ppm/yr)
+# time parameters
+	'dt':1, # timestep size
+	'endtime':300, # last year in the timesteps (yr)
+# ocean model parameters
+	'alpha':0.5, # fraction taken up by the oceans
+	'beta':0.5,
+	'tau':173 # years
+}
+
+attr_2lm = {
+# emissions parameters
+	'R':4, # forcing (W/m2)
+# time parameters
+	'dt':1, # time elapsed (years) - ex: 300 for a pulse, or 1 for a iterative process
+	'endtime':300,
+# ocean model parameters
+	'hsfc':100, # upper ocean depth (meters)
+	'hdeep':1000, # deep ocean depth (meters) 
+	'lb':-1.2, # radiative feedback parameter (W/m2K)
+	'beta':0.7, # ocean heat uptake efficiency parameter (W/m2K), strength of coupling between layers
+	'e':1.3, # ocean heat uptake efficacy (unitless)
+}
+
+
+
+###################
